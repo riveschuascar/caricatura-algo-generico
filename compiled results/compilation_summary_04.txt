@@ -1,0 +1,56 @@
+--- Contenido de results\fit_color_mut_0.05\summary.txt ---
+Resultados para los parametros: {'fitness_func_name': 'color', 'mutation_rate': 0.05}
+Mejor Aptitud Promedio: 7680.1134403202905
+Desv. Est. Aptitud: 191.45806994023113
+Tiempo de Convergencia Promedio: 12.891311430931092s
+
+
+--- Contenido de results\fit_color_mut_0.2\summary.txt ---
+Resultados para los parametros: {'fitness_func_name': 'color', 'mutation_rate': 0.2}
+Mejor Aptitud Promedio: 9424.60453957292
+Desv. Est. Aptitud: 530.6218611470887
+Tiempo de Convergencia Promedio: 13.777441763877869s
+
+
+--- Contenido de results\fit_edge_mut_0.05\summary.txt ---
+Resultados para los parametros: {'fitness_func_name': 'edge', 'mutation_rate': 0.05}
+Mejor Aptitud Promedio: 0.17237999999999998
+Desv. Est. Aptitud: 0.008838189859920409
+Tiempo de Convergencia Promedio: 5.811043930053711s
+
+
+--- Contenido de results\fit_edge_mut_0.2\summary.txt ---
+Resultados para los parametros: {'fitness_func_name': 'edge', 'mutation_rate': 0.2}
+Mejor Aptitud Promedio: 0.19512500000000002
+Desv. Est. Aptitud: 0.003368734925754774
+Tiempo de Convergencia Promedio: 4.913506031036377s
+
+
+--- Contenido de results\fit_ssim_edge_mut_0.05\summary.txt ---
+Resultados para los parametros: {'fitness_func_name': 'ssim_edge', 'mutation_rate': 0.05}
+Mejor Aptitud Promedio: 0.2451759589710308
+Desv. Est. Aptitud: 0.002994499122040769
+Tiempo de Convergencia Promedio: 14.754406094551086s
+
+
+--- Contenido de results\fit_ssim_edge_mut_0.2\summary.txt ---
+Resultados para los parametros: {'fitness_func_name': 'ssim_edge', 'mutation_rate': 0.2}
+Mejor Aptitud Promedio: 0.25678792532433725
+Desv. Est. Aptitud: 0.0022475107306711563
+Tiempo de Convergencia Promedio: 14.39966413974762s
+
+
+--- Contenido de results\fit_ssim_mut_0.05\summary.txt ---
+Resultados para los parametros: {'fitness_func_name': 'ssim', 'mutation_rate': 0.05}
+Mejor Aptitud Promedio: 0.4296378676615705
+Desv. Est. Aptitud: 0.00010699789208958395
+Tiempo de Convergencia Promedio: 25.285901427268982s
+
+
+--- Contenido de results\fit_ssim_mut_0.2\summary.txt ---
+Resultados para los parametros: {'fitness_func_name': 'ssim', 'mutation_rate': 0.2}
+Mejor Aptitud Promedio: 0.4297120875678181
+Desv. Est. Aptitud: 0.0001112050834929821
+Tiempo de Convergencia Promedio: 22.98759868144989s
+
+
