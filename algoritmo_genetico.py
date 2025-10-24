@@ -183,22 +183,24 @@ def run_experiment(params_combinations, original_img, target_img, runs_per_combi
             cv2.imwrite(os.path.join(params_dir_name, f"best_image_run_{run+1}.png"), best_img)
 
         with open(os.path.join(params_dir_name, "summary.txt"), "w") as f:
-            f.write(f"Resultados para los parámetros: {params}\n")
+            f.write(f"Resultados para los parametros: {params}\n")
             f.write(f"Mejor Aptitud Promedio: {np.mean(all_run_metrics['best_fitnesses'])}\n")
             f.write(f"Desv. Est. Aptitud: {np.std(all_run_metrics['best_fitnesses'])}\n")
             f.write(f"Tiempo de Convergencia Promedio: {np.mean(all_run_metrics['convergence_times'])}s\n")
 
 if __name__ == '__main__':
+    INPUT_PATH = "input_images/rostro_base.png"
+    TARGET_PATH = "input_images/objetivo_resized.png"
     try:
-        original_image = cv2.imread("input_images/rostro.png")
-        target_image = cv2.imread("input_images/caricatura_objetivo.webp")
+        original_image = cv2.imread(INPUT_PATH)
+        target_image = cv2.imread(TARGET_PATH)
         if original_image is None or target_image is None:
             raise FileNotFoundError("Una o ambas imágenes no se encontraron.")
         original_image = cv2.resize(original_image, (200, 200))
         target_image = cv2.resize(target_image, (200, 200))
     except Exception as e:
         print(f"Error: {e}")
-        print("Asegúrate de tener 'rostro.jpeg' y 'caricatura_objetivo.jpeg' en el mismo directorio.")
+        print(f"Asegúrate de tener '{INPUT_PATH}' y '{TARGET_PATH}' en el directorio 'input_images/'")
         exit()
 
     parameter_combinations = [
