@@ -190,7 +190,7 @@ def run_experiment(params_combinations, original_img, target_img, runs_per_combi
 
 if __name__ == '__main__':
     INPUT_PATH = "input_images/rostro_base.png"
-    TARGET_PATH = "input_images/objetivo_resized.png"
+    TARGET_PATH = "input_images/objetivo_BandW.png"
     try:
         original_image = cv2.imread(INPUT_PATH)
         target_image = cv2.imread(TARGET_PATH)
