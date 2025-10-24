@@ -4,6 +4,7 @@ from skimage.metrics import structural_similarity as ssim
 import os
 import time
 import random
+import mediapipe as mp
 
 class TransformationParams:
     def __init__(self, params=None):
@@ -17,31 +18,47 @@ class TransformationParams:
             }
 
 def apply_transformations(image, individual):
-    img_transformed = image.copy()
+    img = image.copy()
+    h, w, _ = img.shape
     
     brightness = individual.params['brightness']
     contrast = individual.params['contrast']
-    img_transformed = cv2.addWeighted(img_transformed, contrast, np.zeros_like(img_transformed), 0, brightness)
+    img = cv2.addWeighted(img, contrast, np.zeros_like(img), 0, brightness)
+    
+    eye_scale = individual.params.get('eye_scale', 1.0)
+    mouth_scale = individual.params.get('mouth_scale', 1.0)
+    chin_scale = individual.params.get('chin_scale', 1.0)
 
-    warp_scale = individual.params['warp_scale']
-    if warp_scale > 0:
-        rows, cols, _ = img_transformed.shape
+    with mp_face_mesh.FaceMesh(static_image_mode=True, max_num_faces=1) as face_mesh:
+        results = face_mesh.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+        if not results.multi_face_landmarks:
+            return img  # si no se detecta cara, retornar igual
 
-        X, Y = np.meshgrid(np.arange(cols), np.arange(rows))
-        Xc = X - cols/2
-        Yc = Y - rows/2
-        R = np.sqrt(Xc**2 + Yc**2)
-        theta = np.arctan2(Yc, Xc)
+        landmarks = results.multi_face_landmarks[0].landmark
+        points = np.array([[int(p.x * w), int(p.y * h)] for p in landmarks])
         
-        swirl_strength = warp_scale / 50.0
-        theta_new = theta + swirl_strength * np.exp(-R/(rows/2))
+        left_eye = np.mean(points[33:133], axis=0)
+        right_eye = np.mean(points[362:463], axis=0)
+        mouth = np.mean(points[78:308], axis=0)
+        chin = points[152]
         
-        map_x = (R * np.cos(theta_new) + cols/2).astype(np.float32)
-        map_y = (R * np.sin(theta_new) + rows/2).astype(np.float32)
-        
-        img_transformed = cv2.remap(img_transformed, map_x, map_y, interpolation=cv2.INTER_LINEAR)
+        img = deform_region(img, left_eye, radius=60, scale=eye_scale)
+        img = deform_region(img, right_eye, radius=60, scale=eye_scale)
+        img = deform_region(img, mouth, radius=80, scale=mouth_scale)
+        img = deform_region(img, chin, radius=100, scale=chin_scale)
+    
+    return np.clip(img, 0, 255).astype(np.uint8)
 
-    return np.clip(img_transformed, 0, 255).astype(np.uint8)
+def deform_region(img, center, radius, scale):
+    cx, cy = map(int, center)
+    h, w = img.shape[:2]
+    Y, X = np.meshgrid(np.arange(h), np.arange(w), indexing='ij')
+    dist = np.sqrt((X - cx)**2 + (Y - cy)**2)
+    mask = dist < radius
+    alpha = (1 - dist / radius) * mask * (scale - 1)
+    map_x = (X + (X - cx) * alpha).astype(np.float32)
+    map_y = (Y + (Y - cy) * alpha).astype(np.float32)
+    return cv2.remap(img, map_x, map_y, interpolation=cv2.INTER_LINEAR)
 
 def fitness_ssim(generated_img, target_img):
     generated_gray = cv2.cvtColor(generated_img, cv2.COLOR_BGR2GRAY)
