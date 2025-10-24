@@ -22,17 +22,26 @@ def apply_transformations(image, individual):
     brightness = individual.params['brightness']
     contrast = individual.params['contrast']
     img_transformed = cv2.addWeighted(img_transformed, contrast, np.zeros_like(img_transformed), 0, brightness)
-    
+
     warp_scale = individual.params['warp_scale']
     if warp_scale > 0:
         rows, cols, _ = img_transformed.shape
-        noise = np.random.randn(rows, cols, 2) * warp_scale
-        map_x = (np.repeat(np.arange(cols), rows).reshape(cols, rows).T + noise[:,:,0]).astype(np.float32)
-        map_y = (np.repeat(np.arange(rows), cols).reshape(rows, cols) + noise[:,:,1]).astype(np.float32)
+
+        X, Y = np.meshgrid(np.arange(cols), np.arange(rows))
+        Xc = X - cols/2
+        Yc = Y - rows/2
+        R = np.sqrt(Xc**2 + Yc**2)
+        theta = np.arctan2(Yc, Xc)
+        
+        swirl_strength = warp_scale / 50.0
+        theta_new = theta + swirl_strength * np.exp(-R/(rows/2))
+        
+        map_x = (R * np.cos(theta_new) + cols/2).astype(np.float32)
+        map_y = (R * np.sin(theta_new) + rows/2).astype(np.float32)
+        
         img_transformed = cv2.remap(img_transformed, map_x, map_y, interpolation=cv2.INTER_LINEAR)
 
     return np.clip(img_transformed, 0, 255).astype(np.uint8)
-
 
 def fitness_ssim(generated_img, target_img):
     generated_gray = cv2.cvtColor(generated_img, cv2.COLOR_BGR2GRAY)
@@ -149,7 +158,6 @@ class GeneticAlgorithm:
         convergence_time = time.time() - start_time
         return best_individual, best_fitness, best_fitness_history, convergence_time
 
-
 def run_experiment(params_combinations, original_img, target_img, runs_per_combination=10):
     if not os.path.exists("results"):
         os.makedirs("results")
@@ -190,7 +198,7 @@ def run_experiment(params_combinations, original_img, target_img, runs_per_combi
 
 if __name__ == '__main__':
     INPUT_PATH = "input_images/rostro_base.png"
-    TARGET_PATH = "input_images/objetivo_BandW.png"
+    TARGET_PATH = "input_images/objetivo_resized.png"
     try:
         original_image = cv2.imread(INPUT_PATH)
         target_image = cv2.imread(TARGET_PATH)
