@@ -147,8 +147,9 @@ class GeneticAlgorithm:
         self.fitness_func = self.fitness_functions[fitness_func_name]
 
     def calculate_fitness(self, individual):
-        transformed_img = apply_cartoon_filter(self.original_image, individual)
-        return self.fitness_func(transformed_img)
+        transformed_img = apply_transformations(self.original_image, individual)
+        cartoon_img = apply_cartoon_filter(transformed_img, individual)
+        return self.fitness_func(cartoon_img)
 
     def select(self, fitnesses):
         tournament_size = 5
@@ -247,7 +248,8 @@ def run_experiment(params_combinations, original_img, target_img, runs_per_combi
             all_run_metrics["best_fitnesses"].append(best_fit)
             all_run_metrics["convergence_times"].append(conv_time)
             
-            best_img = apply_cartoon_filter(original_img, best_ind)
+            best_img = apply_transformations(original_img, best_ind)
+            best_img = apply_cartoon_filter(best_img, best_ind)
             cv2.imwrite(os.path.join(params_dir_name, f"best_image_run_{run+1}.png"), best_img)
 
         with open(os.path.join(params_dir_name, "summary.txt"), "w") as f:
@@ -272,14 +274,14 @@ if __name__ == '__main__':
         exit()
 
     parameter_combinations = [
-        {"fitness_func_name": "ssim", "mutation_rate": 0.05},
-        {"fitness_func_name": "ssim", "mutation_rate": 0.2},
-        {"fitness_func_name": "edge", "mutation_rate": 0.05},
-        {"fitness_func_name": "edge", "mutation_rate": 0.2},
-        #{"fitness_func_name": "color", "mutation_rate": 0.05},
-        #{"fitness_func_name": "color", "mutation_rate": 0.2},
-        {"fitness_func_name": "ssim_edge", "mutation_rate": 0.05},
-        {"fitness_func_name": "ssim_edge", "mutation_rate": 0.2},
+        #{"fitness_func_name": "ssim", "mutation_rate": 0.05},
+        #{"fitness_func_name": "ssim", "mutation_rate": 0.2},
+        #{"fitness_func_name": "edge", "mutation_rate": 0.05},
+        #{"fitness_func_name": "edge", "mutation_rate": 0.2},
+        {"fitness_func_name": "color", "mutation_rate": 0.05},
+        {"fitness_func_name": "color", "mutation_rate": 0.2},
+        #{"fitness_func_name": "ssim_edge", "mutation_rate": 0.05},
+        #{"fitness_func_name": "ssim_edge", "mutation_rate": 0.2},
     ]
     
     run_experiment(parameter_combinations, original_image, target_image, runs_per_combination=3)
