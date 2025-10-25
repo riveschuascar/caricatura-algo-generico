@@ -1,0 +1,42 @@
+--- Contenido de results\fit_edge_mut_0.05\summary.txt ---
+Resultados para los parametros: {'fitness_func_name': 'edge', 'mutation_rate': 0.05}
+Mejor Aptitud Promedio: 0.11918827077144657
+Desv. Est. Aptitud: 0.004198511648400828
+Tiempo de Convergencia Promedio: 16.566017309824627s
+
+
+--- Contenido de results\fit_edge_mut_0.2\summary.txt ---
+Resultados para los parametros: {'fitness_func_name': 'edge', 'mutation_rate': 0.2}
+Mejor Aptitud Promedio: 0.11918827077144657
+Desv. Est. Aptitud: 0.004198511648400828
+Tiempo de Convergencia Promedio: 32.54507883389791s
+
+
+--- Contenido de results\fit_ssim_edge_mut_0.05\summary.txt ---
+Resultados para los parametros: {'fitness_func_name': 'ssim_edge', 'mutation_rate': 0.05}
+Mejor Aptitud Promedio: 0.20866979315900544
+Desv. Est. Aptitud: 0.0021427714102159943
+Tiempo de Convergencia Promedio: 47.94141149520874s
+
+
+--- Contenido de results\fit_ssim_edge_mut_0.2\summary.txt ---
+Resultados para los parametros: {'fitness_func_name': 'ssim_edge', 'mutation_rate': 0.2}
+Mejor Aptitud Promedio: 0.20866979315900544
+Desv. Est. Aptitud: 0.0021427714102159943
+Tiempo de Convergencia Promedio: 62.88695311546326s
+
+
+--- Contenido de results\fit_ssim_mut_0.05\summary.txt ---
+Resultados para los parametros: {'fitness_func_name': 'ssim', 'mutation_rate': 0.05}
+Mejor Aptitud Promedio: 0.4681847892932778
+Desv. Est. Aptitud: 0.0013380067068367836
+Tiempo de Convergencia Promedio: 68.51064666112264s
+
+
+--- Contenido de results\fit_ssim_mut_0.2\summary.txt ---
+Resultados para los parametros: {'fitness_func_name': 'ssim', 'mutation_rate': 0.2}
+Mejor Aptitud Promedio: 0.4681847892932778
+Desv. Est. Aptitud: 0.0013380067068367836
+Tiempo de Convergencia Promedio: 69.88715171813965s
+
+

@@ -11,15 +11,49 @@ class TransformationParams:
             self.params = params
         else:
             self.params = {
-                'brightness': np.random.uniform(-50, 50),
-                'contrast': np.random.uniform(0.5, 1.5),
-                # 'warp_scale': np.random.uniform(0, 20),
-                'eye_scale': random.uniform(0.8, 1.5),
-                'mouth_scale': random.uniform(0.8, 1.5),
-                'chin_scale': random.uniform(0.8, 1.3)
+                'bilateral_d': random.randint(3, 10),
+                'bilateral_sigma_color': random.uniform(50, 100),
+                'bilateral_sigma_space': random.uniform(50, 100),
+                'edge_thresh1': random.randint(50, 100),
+                'edge_thresh2': random.randint(100, 200),
+                'color_exaggeration': random.uniform(0.8, 1.3),
+                'sharpen_intensity': random.uniform(0.0, 0.5),
             }
 
 mp_face_mesh = mp.solutions.face_mesh
+
+def apply_cartoon_filter(image, individual):
+    img = image.copy()
+
+    # Parámetros del individuo
+    bilateral_d = individual.params.get('bilateral_d', 5)
+    bilateral_sigma_color = individual.params.get('bilateral_sigma_color', 75)
+    bilateral_sigma_space = individual.params.get('bilateral_sigma_space', 75)
+    edge_thresh1 = individual.params.get('edge_thresh1', 100)
+    edge_thresh2 = individual.params.get('edge_thresh2', 200)
+    color_exaggeration = individual.params.get('color_exaggeration', 1.0)
+    sharpen_intensity = individual.params.get('sharpen_intensity', 0.5)
+
+    # 1. Bilateral filter para suavizar sin perder bordes
+    img_filtered = cv2.bilateralFilter(img, bilateral_d, bilateral_sigma_color, bilateral_sigma_space)
+
+    # 2. Detección de bordes
+    edges = cv2.Canny(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), edge_thresh1, edge_thresh2)
+    edges_colored = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+
+    # 3. Combinar suavizado con bordes
+    img_cartoon = cv2.bitwise_and(img_filtered, img_filtered, mask=255-edges)
+
+    # 4. Exagerar colores
+    img_cartoon = cv2.convertScaleAbs(img_cartoon, alpha=color_exaggeration, beta=0)
+
+    # 5. Aplicar sharpening
+    kernel = np.array([[0, -sharpen_intensity, 0],
+                       [-sharpen_intensity, 1 + 4*sharpen_intensity, -sharpen_intensity],
+                       [0, -sharpen_intensity, 0]])
+    img_cartoon = cv2.filter2D(img_cartoon, -1, kernel)
+
+    return np.clip(img_cartoon, 0, 255).astype(np.uint8)
 
 def apply_transformations(image, individual):
     img = image.copy()
@@ -70,7 +104,6 @@ def fitness_ssim(generated_img, target_img):
     return ssim(generated_gray, target_gray)
 
 def fitness_edge_difference(generated_img, original_img):
-    original_edges = cv2.Canny(original_img, 100, 200)
     generated_edges = cv2.Canny(generated_img, 100, 200)
     return np.sum(generated_edges > 0) / (original_img.shape[0] * original_img.shape[1])
 
@@ -82,11 +115,10 @@ def fitness_ssim_edge(generated_img, original_img, target_img):
     target_gray = cv2.cvtColor(target_img, cv2.COLOR_BGR2GRAY)
     ssim_score = ssim(generated_gray, target_gray)
 
-    original_edges = cv2.Canny(original_img, 100, 200)
     generated_edges = cv2.Canny(generated_img, 100, 200)
     edge_score = np.sum(generated_edges > 0) / (original_img.shape[0] * original_img.shape[1])
 
-    return (0.3 * ssim_score) + (0.7 * edge_score)
+    return (0.5 * ssim_score) + (0.5 * edge_score)
 
 class GeneticAlgorithm:
     def __init__(self, population_size, generations, mutation_rate, crossover_rate, original_image, target_image, fitness_func_name):
@@ -108,7 +140,7 @@ class GeneticAlgorithm:
         self.fitness_func = self.fitness_functions[fitness_func_name]
 
     def calculate_fitness(self, individual):
-        transformed_img = apply_transformations(self.original_image, individual)
+        transformed_img = apply_cartoon_filter(self.original_image, individual)
         return self.fitness_func(transformed_img)
 
     def select(self, fitnesses):
@@ -179,7 +211,7 @@ class GeneticAlgorithm:
         convergence_time = time.time() - start_time
         return best_individual, best_fitness, best_fitness_history, convergence_time
 
-def run_experiment(params_combinations, original_img, target_img, runs_per_combination=10):
+def run_experiment(params_combinations, original_img, target_img, runs_per_combination=3):
     if not os.path.exists("results"):
         os.makedirs("results")
 
@@ -198,7 +230,7 @@ def run_experiment(params_combinations, original_img, target_img, runs_per_combi
             np.random.seed(run)
 
             ga = GeneticAlgorithm(
-                population_size=50, generations=30,
+                population_size=50, generations=10,
                 mutation_rate=params['mutation_rate'], crossover_rate=0.8,
                 original_image=original_img, target_image=target_img,
                 fitness_func_name=params['fitness_func_name']
@@ -208,7 +240,7 @@ def run_experiment(params_combinations, original_img, target_img, runs_per_combi
             all_run_metrics["best_fitnesses"].append(best_fit)
             all_run_metrics["convergence_times"].append(conv_time)
             
-            best_img = apply_transformations(original_img, best_ind)
+            best_img = apply_cartoon_filter(original_img, best_ind)
             cv2.imwrite(os.path.join(params_dir_name, f"best_image_run_{run+1}.png"), best_img)
 
         with open(os.path.join(params_dir_name, "summary.txt"), "w") as f:
@@ -219,14 +251,14 @@ def run_experiment(params_combinations, original_img, target_img, runs_per_combi
 
 if __name__ == '__main__':
     INPUT_PATH = "input_images/rostro_base.png"
-    TARGET_PATH = "input_images/objetivo_resized.png"
+    TARGET_PATH = "input_images/objetivo_BandW.png"
     try:
         original_image = cv2.imread(INPUT_PATH)
         target_image = cv2.imread(TARGET_PATH)
         if original_image is None or target_image is None:
             raise FileNotFoundError("Una o ambas imágenes no se encontraron.")
-        original_image = cv2.resize(original_image, (200, 200))
-        target_image = cv2.resize(target_image, (200, 200))
+        original_image = cv2.resize(original_image, (300, 300))
+        target_image = cv2.resize(target_image, (300, 300))
     except Exception as e:
         print(f"Error: {e}")
         print(f"Asegúrate de tener '{INPUT_PATH}' y '{TARGET_PATH}' en el directorio 'input_images/'")
@@ -237,11 +269,11 @@ if __name__ == '__main__':
         {"fitness_func_name": "ssim", "mutation_rate": 0.2},
         {"fitness_func_name": "edge", "mutation_rate": 0.05},
         {"fitness_func_name": "edge", "mutation_rate": 0.2},
-        {"fitness_func_name": "color", "mutation_rate": 0.05},
-        {"fitness_func_name": "color", "mutation_rate": 0.2},
+        #{"fitness_func_name": "color", "mutation_rate": 0.05},
+        #{"fitness_func_name": "color", "mutation_rate": 0.2},
         {"fitness_func_name": "ssim_edge", "mutation_rate": 0.05},
         {"fitness_func_name": "ssim_edge", "mutation_rate": 0.2},
     ]
     
-    run_experiment(parameter_combinations, original_image, target_image, runs_per_combination=10)
+    run_experiment(parameter_combinations, original_image, target_image, runs_per_combination=3)
     print("\n¡Experimentos completados! Revisa la carpeta 'results'.")
