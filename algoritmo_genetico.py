@@ -274,14 +274,14 @@ if __name__ == '__main__':
         exit()
 
     parameter_combinations = [
-        #{"fitness_func_name": "ssim", "mutation_rate": 0.05},
-        #{"fitness_func_name": "ssim", "mutation_rate": 0.2},
-        #{"fitness_func_name": "edge", "mutation_rate": 0.05},
-        #{"fitness_func_name": "edge", "mutation_rate": 0.2},
+        {"fitness_func_name": "ssim", "mutation_rate": 0.05},
+        {"fitness_func_name": "ssim", "mutation_rate": 0.2},
+        {"fitness_func_name": "edge", "mutation_rate": 0.05},
+        {"fitness_func_name": "edge", "mutation_rate": 0.2},
         {"fitness_func_name": "color", "mutation_rate": 0.05},
         {"fitness_func_name": "color", "mutation_rate": 0.2},
-        #{"fitness_func_name": "ssim_edge", "mutation_rate": 0.05},
-        #{"fitness_func_name": "ssim_edge", "mutation_rate": 0.2},
+        {"fitness_func_name": "ssim_edge", "mutation_rate": 0.05},
+        {"fitness_func_name": "ssim_edge", "mutation_rate": 0.2},
     ]
     
     run_experiment(parameter_combinations, original_image, target_image, runs_per_combination=3)
