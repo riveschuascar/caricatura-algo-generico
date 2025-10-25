@@ -1,10 +1,9 @@
 import cv2
 import numpy as np
 from skimage.metrics import structural_similarity as ssim
-import os
-import time
-import random
+import time, random
 import mediapipe as mp
+import os
 
 class TransformationParams:
     def __init__(self, params=None):
@@ -14,8 +13,13 @@ class TransformationParams:
             self.params = {
                 'brightness': np.random.uniform(-50, 50),
                 'contrast': np.random.uniform(0.5, 1.5),
-                'warp_scale': np.random.uniform(0, 20), 
+                # 'warp_scale': np.random.uniform(0, 20),
+                'eye_scale': random.uniform(0.8, 1.5),
+                'mouth_scale': random.uniform(0.8, 1.5),
+                'chin_scale': random.uniform(0.8, 1.3)
             }
+
+mp_face_mesh = mp.solutions.face_mesh
 
 def apply_transformations(image, individual):
     img = image.copy()
