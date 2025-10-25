@@ -6,15 +6,19 @@ import time
 import random
 import mediapipe as mp
 
+mp_face_mesh = mp.solutions.face_mesh
+
 class TransformationParams:
     def __init__(self, params=None):
         if params:
             self.params = params
         else:
             self.params = {
-                'brightness': np.random.uniform(-50, 50),
-                'contrast': np.random.uniform(0.5, 1.5),
-                'warp_scale': np.random.uniform(0, 20), 
+                'brightness': random.uniform(-50, 50),
+                'contrast': random.uniform(0.8, 1.2),
+                'eye_scale': random.uniform(0.8, 1.5),
+                'mouth_scale': random.uniform(0.8, 1.5),
+                'chin_scale': random.uniform(0.8, 1.3),
             }
 
 def apply_transformations(image, individual):
@@ -194,7 +198,7 @@ def run_experiment(params_combinations, original_img, target_img, runs_per_combi
             np.random.seed(run)
 
             ga = GeneticAlgorithm(
-                population_size=50, generations=30,
+                population_size=50, generations=10,
                 mutation_rate=params['mutation_rate'], crossover_rate=0.8,
                 original_image=original_img, target_image=target_img,
                 fitness_func_name=params['fitness_func_name']
@@ -239,5 +243,5 @@ if __name__ == '__main__':
         {"fitness_func_name": "ssim_edge", "mutation_rate": 0.2},
     ]
     
-    run_experiment(parameter_combinations, original_image, target_image, runs_per_combination=10)
+    run_experiment(parameter_combinations, original_image, target_image, runs_per_combination=3)
     print("\n¡Experimentos completados! Revisa la carpeta 'results'.")
