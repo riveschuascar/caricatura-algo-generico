@@ -5,6 +5,8 @@ import time, random
 import mediapipe as mp
 import os
 
+mp_face_mesh = mp.solutions.face_mesh
+
 class TransformationParams:
     def __init__(self, params=None):
         if params:
@@ -18,6 +20,11 @@ class TransformationParams:
                 'edge_thresh2': random.randint(100, 200),
                 'color_exaggeration': random.uniform(0.8, 1.3),
                 'sharpen_intensity': random.uniform(0.0, 0.5),
+                'brightness': random.uniform(-50, 50),
+                'contrast': random.uniform(0.8, 1.2),
+                'eye_scale': random.uniform(0.8, 1.5),
+                'mouth_scale': random.uniform(0.8, 1.5),
+                'chin_scale': random.uniform(0.8, 1.3),
             }
 
 mp_face_mesh = mp.solutions.face_mesh
