@@ -1,2 +1,4 @@
 mediapipe
-scikit-image    
+scikit-image
+pandas
+seaborn
